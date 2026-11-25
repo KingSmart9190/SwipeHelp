@@ -1310,6 +1310,10 @@ body.state-app #page-activity:not(.active) {
 }
 
 /* ── Modal Overlay ──────────────────────────────────── */
+body.modal-open {
+  overflow: hidden;
+}
+
 .modal-overlay {
   display: none;
   position: fixed;
@@ -1347,8 +1351,16 @@ body.state-app #page-activity:not(.active) {
   position: relative;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
   animation: slideUp 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-  max-height: 90vh;
+  max-height: calc(100vh - 40px);
   overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.modal-box::-webkit-scrollbar {
+  display: none;
 }
 
 @keyframes slideUp {
@@ -1692,13 +1704,13 @@ body.state-app #page-activity:not(.active) {
 
 .hero-star-wrapper {
   position: relative;
-  width: 500px;
-  height: 500px;
-  margin-bottom: 90px;
+  width: 340px;
+  height: 340px;
+  margin-bottom: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.35)) drop-shadow(0 0 35px rgba(167, 243, 208, 0.3));
+  filter: drop-shadow(0 15px 35px rgba(0, 0, 0, 0.35)) drop-shadow(0 0 25px rgba(167, 243, 208, 0.3));
   transition: transform var(--transition);
 }
 
@@ -1706,52 +1718,83 @@ body.state-app #page-activity:not(.active) {
   transform: translateY(-4px) scale(1.02);
 }
 
-/* Layer 1: Ambient glowing outer 4-sided star */
+/* Layer 1: 4-pointed star silhouette */
 .star-backdrop {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   pointer-events: none;
-  -webkit-clip-path: polygon(50% 0%, 63% 37%, 100% 50%, 63% 63%, 50% 100%, 37% 63%, 0% 50%, 37% 37%);
-  clip-path: polygon(50% 0%, 63% 37%, 100% 50%, 63% 63%, 50% 100%, 37% 63%, 0% 50%, 37% 37%);
+  -webkit-clip-path: polygon(50% 0%, 66% 34%, 100% 50%, 66% 66%, 50% 100%, 34% 66%, 0% 50%, 34% 34%);
+  clip-path: polygon(50% 0%, 66% 34%, 100% 50%, 66% 66%, 50% 100%, 34% 66%, 0% 50%, 34% 34%);
 }
 
+/* Outside animation: Pulsing ambient glow framing the star */
 .star-backdrop-ambient {
-  width: 530px;
-  height: 530px;
-  background: linear-gradient(135deg, rgba(167, 243, 208, 0.45) 0%, rgba(255, 255, 255, 0.2) 50%, rgba(20, 83, 45, 0.5) 100%);
-  filter: blur(14px);
+  width: 126%;
+  height: 126%;
+  background: radial-gradient(circle, rgba(167, 243, 208, 0.7) 0%, rgba(45, 155, 107, 0.45) 45%, rgba(21, 90, 60, 0.6) 80%, transparent 100%);
+  filter: blur(15px);
   opacity: 0.85;
-  animation: starPulse 4s ease-in-out infinite alternate;
+  z-index: 1;
+  animation: starPulse 3.5s ease-in-out infinite alternate;
 }
 
-/* Layer 2: Glass 4-sided star frame with translucent border gradient */
-.star-backdrop-frame {
-  width: 502px;
-  height: 502px;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.55) 0%, rgba(167, 243, 208, 0.35) 50%, rgba(255, 255, 255, 0.15) 100%);
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
-}
-
-/* Layer 3: Video inside 4-sided star */
-.hero-video-star {
-  position: relative;
-  width: 300px;
-  height: 300px;
-  -webkit-clip-path: polygon(50% 0%, 63% 37%, 100% 50%, 63% 63%, 50% 100%, 37% 63%, 0% 50%, 37% 37%);
-  clip-path: polygon(50% 0%, 63% 37%, 100% 50%, 63% 63%, 50% 100%, 37% 63%, 0% 50%, 37% 37%);
-  background: #000;
-  overflow: hidden;
+/* Layer 2: Outer Green Border Frame (matched to page theme colors) */
+.star-border-frame {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(1.06);
+  width: 100%;
+  height: 100%;
+  -webkit-clip-path: polygon(50% 0%, 66% 34%, 100% 50%, 66% 66%, 50% 100%, 34% 66%, 0% 50%, 34% 34%);
+  clip-path: polygon(50% 0%, 66% 34%, 100% 50%, 66% 66%, 50% 100%, 34% 66%, 0% 50%, 34% 34%);
+  background: linear-gradient(135deg, #2d9b6b 0%, var(--color-primary) 50%, var(--color-primary-dark) 100%);
   z-index: 2;
+  pointer-events: none;
+}
+
+/* Layer 3: Inner accent border line (matching mint theme accent) */
+.star-border-accent {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.90);
+  width: 100%;
+  height: 100%;
+  -webkit-clip-path: polygon(50% 0%, 66% 34%, 100% 50%, 66% 66%, 50% 100%, 34% 66%, 0% 50%, 34% 34%);
+  clip-path: polygon(50% 0%, 66% 34%, 100% 50%, 66% 66%, 50% 100%, 34% 66%, 0% 50%, 34% 34%);
+  background: linear-gradient(135deg, #a7f3d0 0%, #34d399 50%, #2d9b6b 100%);
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* Layer 4: White 4-pointed star holding the unblurred video */
+.hero-video-star {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.87);
+  width: 100%;
+  height: 100%;
+  -webkit-clip-path: polygon(50% 0%, 66% 34%, 100% 50%, 66% 66%, 50% 100%, 34% 66%, 0% 50%, 34% 34%);
+  clip-path: polygon(50% 0%, 66% 34%, 100% 50%, 66% 66%, 50% 100%, 34% 66%, 0% 50%, 34% 34%);
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 4;
+  overflow: hidden;
 }
 
 .hero-video-star .hero-video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  width: 64%;
+  height: 64%;
+  object-fit: contain;
+  object-position: center;
   display: block;
+  background: #ffffff;
 }
 
 @keyframes starPulse {
@@ -1761,18 +1804,18 @@ body.state-app #page-activity:not(.active) {
   }
 
   100% {
-    transform: translate(-50%, -50%) scale(1.04);
+    transform: translate(-50%, -50%) scale(1.10);
     opacity: 0.95;
   }
 }
 
 .hero-video-glass-card {
   position: absolute;
-  bottom: -90px;
+  bottom: -120px;
   left: 50%;
   transform: translateX(-50%);
   width: calc(100% - 40px);
-  max-width: 330px;
+  max-width: 290px;
   background: rgba(255, 255, 255, 0.95);
   -webkit-backdrop-filter: blur(14px);
   backdrop-filter: blur(14px);
@@ -2839,27 +2882,14 @@ body.state-app #page-activity:not(.active) {
   }
 
   .hero-star-wrapper {
-    width: 370px;
-    height: 370px;
-  }
-
-  .star-backdrop-ambient {
-    width: 390px;
-    height: 390px;
-  }
-
-  .star-backdrop-frame {
-    width: 368px;
-    height: 368px;
-  }
-
-  .hero-video-star {
-    width: 225px;
-    height: 225px;
+    width: 280px;
+    height: 280px;
+    margin-bottom: 35px;
   }
 
   .hero-video-glass-card {
-    max-width: 280px;
+    max-width: 250px;
+    bottom: -28px;
   }
 
   .steps-grid {
@@ -2923,28 +2953,15 @@ body.state-app #page-activity:not(.active) {
 
 @media (max-width: 480px) {
   .hero-star-wrapper {
-    width: 310px;
-    height: 310px;
-  }
-
-  .star-backdrop-ambient {
-    width: 330px;
-    height: 330px;
-  }
-
-  .star-backdrop-frame {
-    width: 308px;
-    height: 308px;
-  }
-
-  .hero-video-star {
-    width: 190px;
-    height: 190px;
+    width: 230px;
+    height: 230px;
+    margin-bottom: 30px;
   }
 
   .hero-video-glass-card {
-    max-width: 250px;
-    padding: 8px 10px;
+    max-width: 220px;
+    padding: 7px 9px;
+    bottom: -22px;
   }
 
   .trust-grid {

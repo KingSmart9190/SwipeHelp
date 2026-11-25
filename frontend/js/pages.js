@@ -10,6 +10,7 @@ function openModal(modalId) {
   closeModals();
   const m = document.getElementById(modalId);
   if (m) {
+    document.body.classList.add('modal-open');
     m.classList.add('open');
     const firstInput = m.querySelector('input:not([type="radio"])');
     if (firstInput) setTimeout(() => firstInput.focus(), 150);
@@ -18,6 +19,7 @@ function openModal(modalId) {
 
 function closeModals() {
   document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('open'));
+  document.body.classList.remove('modal-open');
 }
 
 function selectRole(role) {
